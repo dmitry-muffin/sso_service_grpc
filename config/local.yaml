@@ -1,6 +1,13 @@
 env: "local"
 
-storage_path: "./storage/sso.db"
+storage_path: "postgres://postgres:admin@localhost:5432/test_auth?sslmode=disable"
+postgres:
+  dbHost: "localhost"
+  dbPort: 5432
+  dbUser: "postgres"
+  dbPassword: "admin"
+  dbName: "test_auth"
+  dbSSLMode: "disable"
 token_ttl: 1h
 grpc:
   port: 1488

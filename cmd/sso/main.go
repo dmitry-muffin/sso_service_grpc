@@ -16,10 +16,10 @@ const (
 )
 
 func main() {
-	// TODO: config init
+	//config init
 	cfg := config.MustLoad()
 
-	//TODO: logger init
+	//logger init
 	log := setupLogger(cfg.Env)
 	log.Info("starting application",
 		slog.String("env", cfg.Env),
@@ -27,14 +27,18 @@ func main() {
 		slog.Int("port", cfg.GRPC.Port),
 	)
 
-	application := app.New(log, cfg.GRPC.Port, cfg.StoragePath, cfg.TokenTTL)
+	application := app.New(log,
+		cfg.GRPC.Port,
+		cfg.PgDb.Host,
+		cfg.PgDb.Port,
+		cfg.PgDb.Username,
+		cfg.PgDb.Password,
+		cfg.PgDb.Database,
+		cfg.TokenTTL)
 
 	go application.GRPCSrv.MustRun()
 
-	//TODO: app init
-
-	//TODO: gRPC-server start
-
+	// Graceful shuttdown
 	stop := make(chan os.Signal, 1)
 	signal.Notify(stop, syscall.SIGTERM, syscall.SIGINT)
 	sign := <-stop

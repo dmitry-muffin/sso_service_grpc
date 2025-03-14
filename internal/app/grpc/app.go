@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log/slog"
 	"net"
+	"sso/internal/services/auth"
 
 	authrpc "sso/internal/grpc/auth"
 
@@ -17,9 +18,9 @@ type App struct {
 }
 
 // New creates new gRPC server app
-func New(log *slog.Logger, port int) *App {
+func New(log *slog.Logger, authService *auth.Auth, port int) *App {
 	gRPCServer := grpc.NewServer()
-	authrpc.Register(gRPCServer)
+	authrpc.Register(gRPCServer, authService)
 	return &App{log: log,
 		gRPCServer: gRPCServer,
 		port:       port}
