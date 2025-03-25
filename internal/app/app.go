@@ -3,13 +3,16 @@ package app
 import (
 	"log/slog"
 	grpcapp "sso/internal/app/grpc"
+	httpapp "sso/internal/app/http"
+	authhttp "sso/internal/http/auth"
 	"sso/internal/services/auth"
-	"sso/storage"
+	"sso/internal/storage/postgres"
 	"time"
 )
 
 type App struct {
 	GRPCSrv *grpcapp.App
+	HTTPSrv *httpapp.Srv
 }
 
 func New(
@@ -20,10 +23,13 @@ func New(
 	dbUser string,
 	dbPassword string,
 	dbName string,
+	httpAddr int,
+	httpTimeout time.Duration,
+	httpIdle time.Duration,
 	tokenTTL time.Duration,
 ) *App {
 
-	dsn := storage.DSN(
+	dsn := postgres.DSN(
 		dbHost,
 		dbPort,
 		dbUser,
@@ -33,7 +39,7 @@ func New(
 	)
 	//TODO: init storage
 
-	storage, err := storage.New(dsn)
+	storage, err := postgres.New(dsn)
 	if err != nil {
 		panic(err)
 	}
@@ -43,7 +49,15 @@ func New(
 
 	grpcApp := grpcapp.New(log, authService, grpcPort)
 
+	httpHandlers := authhttp.NewHandler(storage, log, tokenTTL)
+	httpServ := httpapp.New(log, httpHandlers, httpAddr)
 	return &App{
 		GRPCSrv: grpcApp,
+		HTTPSrv: httpServ,
 	}
+}
+
+func (a *App) Stop() {
+	a.GRPCSrv.Stop()
+	a.HTTPSrv.Stop()
 }

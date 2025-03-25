@@ -12,3 +12,8 @@ token_ttl: 1h
 grpc:
   port: 1488
   timeout: 5s
+
+http_server:
+  address: 1489
+  timeout: 4s
+  idle_timeout: 60s

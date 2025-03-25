@@ -82,17 +82,17 @@ func (a *Auth) Login(
 		a.log.Error("failed to login", err.Error())
 		return "", fmt.Errorf("%s: %w", op, err)
 	}
-	log.Info("here 1")
+
 	if err := bcrypt.CompareHashAndPassword(user.PassHash, []byte(password)); err != nil {
 		a.log.Info("invalid credentials", err.Error())
 		return "", fmt.Errorf("%s: %w", op, ErrInvalidCredentials)
 	}
-	log.Info("here 2")
+
 	app, errr := a.appProvider.App(ctx, int64(appID))
 	if errr != nil {
 		return "", fmt.Errorf("%s: %w", op, err)
 	}
-	log.Info("here 3")
+
 	log.Info("user successfully logged in")
 
 	token, err := jwt.NewToken(user, app, a.tokenTTL)
